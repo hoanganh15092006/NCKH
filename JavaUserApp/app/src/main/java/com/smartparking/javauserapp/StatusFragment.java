@@ -51,9 +51,19 @@ public class StatusFragment extends Fragment {
                         StringBuilder sb = new StringBuilder();
                         for (Map<String, Object> session : sessions) {
                             String plate = (String) session.get("plate");
-                            String time = (String) session.get("entry_time");
+                            String entryTime = (String) session.get("entry_time");
+                            String exitTime = (String) session.get("exit_time");
+
                             sb.append("🚗 Biển số: ").append(plate).append("\n");
-                            sb.append("🕒 Giờ vào: ").append(time).append("\n\n");
+                            sb.append("🕒 Giờ vào: ").append(entryTime).append("\n");
+                            sb.append("🏁 Giờ ra: ").append(exitTime != null ? exitTime : "---").append("\n");
+
+                            if ("Đang ở trong bãi".equals(exitTime)) {
+                                sb.append("✅ Trạng thái: Còn trong bãi").append("\n");
+                            } else {
+                                sb.append("⚪ Trạng thái: Đã ra bãi").append("\n");
+                            }
+                            sb.append("----------------------------\n\n");
                         }
                         tvActiveCarsStatus.setText(sb.toString());
                     }

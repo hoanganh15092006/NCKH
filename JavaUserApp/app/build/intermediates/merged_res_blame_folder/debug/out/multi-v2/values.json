@@ -59,7 +59,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Admin\\CAMNHANDIENBIENSO\\JavaUserApp\\app\\src\\main\\res\\values\\colors.xml",
+                    "source": "C:\\Users\\Admin\\CAMNHANDIENBIENSO\\NCKH\\JavaUserApp\\app\\src\\main\\res\\values\\colors.xml",
                     "from": {
                         "startLines": "4,7,9,5,8,2,3,6",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -76,26 +76,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Admin\\CAMNHANDIENBIENSO\\JavaUserApp\\app\\src\\main\\res\\values\\themes.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "57",
-                        "endLines": "10",
-                        "endColumns": "12",
-                        "endOffsets": "599"
-                    },
-                    "to": {
-                        "startLines": "6408",
-                        "startColumns": "4",
-                        "startOffsets": "448493",
-                        "endLines": "6416",
-                        "endColumns": "12",
-                        "endOffsets": "449027"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\Admin\\CAMNHANDIENBIENSO\\JavaUserApp\\app\\src\\main\\res\\values\\strings.xml",
+                    "source": "C:\\Users\\Admin\\CAMNHANDIENBIENSO\\NCKH\\JavaUserApp\\app\\src\\main\\res\\values\\strings.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -276,6 +257,25 @@
                         "endLines": "964,965,966,967,968,969,970,971,972,973,1882,1883,1884,1885,1886,1887,1888,1889,1890,1992,2004,2015,2016,2017,2018,2019,2020,2021,2022,2023,2144,2145,2146,2147,9191,13594,13601,13604",
                         "endColumns": "71,60,63,64,64,53,53,53,58,57,46,48,47,41,48,51,57,49,53,65,69,96,116,95,160,112,85,146,98,146,58,46,143,112,10,22,22,22",
                         "endOffsets": "56711,56772,56836,56901,56966,57020,57074,57128,57187,57245,124371,124420,124468,124510,124559,124611,124669,124719,124773,131680,133366,134457,134574,134670,134831,134944,135030,135177,135276,135423,152777,152824,152968,153081,638716,801673,802038,802162"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Admin\\CAMNHANDIENBIENSO\\NCKH\\JavaUserApp\\app\\src\\main\\res\\values\\themes.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "57",
+                        "endLines": "10",
+                        "endColumns": "12",
+                        "endOffsets": "599"
+                    },
+                    "to": {
+                        "startLines": "6408",
+                        "startColumns": "4",
+                        "startOffsets": "448493",
+                        "endLines": "6416",
+                        "endColumns": "12",
+                        "endOffsets": "449027"
                     }
                 },
                 {

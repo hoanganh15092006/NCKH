@@ -9,11 +9,11 @@
 9        android:targetSdkVersion="34" />
 10
 11    <uses-permission android:name="android.permission.INTERNET" />
-11-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:5:5-66
-11-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:5:22-64
+11-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:5:5-66
+11-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:5:22-64
 12    <uses-permission android:name="android.permission.CAMERA" />
-12-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:6:5-65
-12-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:6:22-62
+12-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:6:5-65
+12-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:6:22-62
 13    <!-- Don't require camera, as this requires a rear camera. This allows it to work on the Nexus 7 -->
 14    <uses-feature
 14-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Admin\.gradle\caches\transforms-4\ae4500596405ff6e3712a766695773d0\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:25:5-27:36
@@ -65,52 +65,52 @@
 38-->[androidx.core:core:1.9.0] C:\Users\Admin\.gradle\caches\transforms-4\a0da38a081df3123d1b44972c5912fc1\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
 39
 40    <application
-40-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:8:5-27:19
+40-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:8:5-27:19
 41        android:allowBackup="true"
-41-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:9:9-35
+41-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:9:9-35
 42        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
 42-->[androidx.core:core:1.9.0] C:\Users\Admin\.gradle\caches\transforms-4\a0da38a081df3123d1b44972c5912fc1\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
 43        android:debuggable="true"
 44        android:extractNativeLibs="false"
 45        android:icon="@mipmap/ic_launcher"
-45-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:10:9-43
+45-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:10:9-43
 46        android:label="Smart Parking"
-46-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:11:9-38
+46-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:11:9-38
 47        android:roundIcon="@mipmap/ic_launcher_round"
-47-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:12:9-54
+47-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:12:9-54
 48        android:supportsRtl="true"
-48-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:13:9-35
+48-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:13:9-35
 49        android:testOnly="true"
 50        android:theme="@style/Theme.JavaUserApp"
-50-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:14:9-49
+50-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:14:9-49
 51        android:usesCleartextTraffic="true" >
-51-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:15:9-44
+51-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:15:9-44
 52        <activity
-52-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:16:9-23:20
+52-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:16:9-23:20
 53            android:name="com.smartparking.javauserapp.LoginActivity"
-53-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:17:13-42
+53-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:17:13-42
 54            android:exported="true" >
-54-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:18:13-36
+54-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:18:13-36
 55            <intent-filter>
-55-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:19:13-22:29
+55-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:19:13-22:29
 56                <action android:name="android.intent.action.MAIN" />
-56-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:20:17-69
-56-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:20:25-66
+56-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:20:17-69
+56-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:20:25-66
 57
 58                <category android:name="android.intent.category.LAUNCHER" />
-58-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:21:17-77
-58-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:21:27-74
+58-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:21:17-77
+58-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:21:27-74
 59            </intent-filter>
 60        </activity>
 61        <activity android:name="com.smartparking.javauserapp.MainActivity" />
-61-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:24:9-50
-61-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:24:19-47
+61-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:24:9-50
+61-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:24:19-47
 62        <activity android:name="com.smartparking.javauserapp.QrActivity" />
-62-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:25:9-48
-62-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:25:19-45
+62-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:25:9-48
+62-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:25:19-45
 63        <activity android:name="com.smartparking.javauserapp.RegisterActivity" />
-63-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:26:9-54
-63-->C:\Users\Admin\CAMNHANDIENBIENSO\JavaUserApp\app\src\main\AndroidManifest.xml:26:19-51
+63-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:26:9-54
+63-->C:\Users\Admin\CAMNHANDIENBIENSO\NCKH\JavaUserApp\app\src\main\AndroidManifest.xml:26:19-51
 64        <activity
 64-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Admin\.gradle\caches\transforms-4\ae4500596405ff6e3712a766695773d0\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:47:9-53:63
 65            android:name="com.journeyapps.barcodescanner.CaptureActivity"
