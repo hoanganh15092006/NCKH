@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.smartparking.javauserapp-mergeDebugResources-30:/values-he/values-he.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Admin\\.gradle\\caches\\transforms-4\\ae4500596405ff6e3712a766695773d0\\transformed\\jetified-zxing-android-embedded-4.3.0\\res\\values-he\\values-he.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,111,161,296",
+                        "endColumns": "55,49,134,89",
+                        "endOffsets": "106,156,291,381"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,79 @@
+===================================================================
+HƯỚNG DẪN SỬ DỤNG HỆ THỐNG SMART PARKING (TÍCH HỢP APP ĐIỆN THOẠI)
+===================================================================
+
+Hệ thống Smart Parking bao gồm 2 phần chính:
+1. Parking App (Chạy trên PC): Đóng vai trò là camera gác cổng, dùng AI nhận diện biển số xe và thiết lập các cổng Kiểm soát VÀO / RA.
+2. Java User App (Mobile / Máy Ảo): Đóng vai trò làm ví điện tử và điều khiển mở rào chắn từ xa cho khách hàng.
+3. API Server (File api_server.py): Đóng vai trò cầu nối dữ liệu (Cảnh sát giao thông) giữa App và PC.
+
+-------------------------------------------------------------------
+PHẦN 1: CÁC BƯỚC KHỞI ĐỘNG HỆ THỐNG
+-------------------------------------------------------------------
+BƯỚC 1: Khởi động cơ sở dữ liệu
+- Bật XAMPP Control Panel.
+- Nhấn Start vào dịch vụ MySQL và Apache.
+
+BƯỚC 2: Khởi động Cầu nối trung tâm (Server)
+- Mở một terminal mới (VSCode hoặc CMD).
+- Kiểm tra địa chỉ IP LAN của máy tính hiện tại bằng lệnh `ipconfig`.
+- Chạy lệnh: `python api_server.py`. 
+- Đảm bảo Terminal báo "Running on http://0.0.0.0:5000" (Hoặc IP LAN của bạn), lưu ý không tắt cửa sổ này đi.
+
+BƯỚC 3: Khởi động Camera PC (Trạm Barie)
+- Mở một terminal khác.
+- Chạy lệnh: `python parking_app.py`.
+- Ứng dụng Desktop UI sẽ hiện lên phục vụ cho Bảo vệ bãi xe.
+
+BƯỚC 4: Khởi động Ứng dụng người dùng (Java User App)
+- Mở Android Studio và bật Máy Ảo lên.
+- Đảm bảo trong mã nguồn Mobile đã đổi cấu hình IP kết nối về đúng IP máy tinh. (Ví dụ: 192.168.x.x:5000).
+- Run ứng dụng trên điện thoại ảo/thật.
+
+-------------------------------------------------------------------
+PHẦN 2: LUỒNG HOẠT ĐỘNG VÀ THAO TÁC CỦA NGƯỜI DÙNG (CỰC KỲ QUAN TRỌNG)
+-------------------------------------------------------------------
+Luồng thiết kế của hệ thống này KHÔNG PHẢI TỰ ĐỘNG CHỤP mà là do KHÁCH HÀNG TỰ RA LỆNH nhằm đảm bảo 100% tính xác thực thanh toán.
+
+A. QUY TRÌNH XE ĐI VÀO (IN)
+1. Thao tác của Bảo vệ: Trên PC, bấm nút màu đỏ "MỞ LÀN VÀO (IN)". Cửa sổ Camera IN hiện lên. Lúc này Camera chỉ "ngắm nghía" chứ chưa lưu gì cả.
+2. Thao tác của Khách hàng: Lái xe tới trước Camera IN. Mở điện thoại, mở App Java, ấn nút "Quét Mã Vào Bãi".
+3. Lúc này, App ĐT gửi lệnh lên PC. PC lập tức "chớp" hình ảnh của con xe đó.
+4. AI trên PC đọc biển số (Ví dụ ra 29A-123). PC lưu số 29A-123 vào bãi, và tự động Cấp Quyền sở hữu chiếc 29A-123 này cho Tài khoản đang đăng nhập trên App ĐT.
+5. PC bắn thông báo về Điện thoại: "Biển xe 29A-123 đã vào bãi an toàn!". Quá trình hoàn tất.
+
+B. QUY TRÌNH XE ĐI RA (OUT) VÀ THANH TOÁN
+1. Thao tác của Bảo vệ: Trên PC, bấm nút màu xanh "MỞ LÀN RA (OUT)". Camera soi xe bắt đầu chạy.
+2. Thao tác của Khách hàng: Lái xe ra trạm thu phí. Bấm lệnh "Quét Mã RA".
+3. Lập tức PC sẽ nhận ảnh, chốt Biển Số hiện tại.
+4. Quá trình An Ninh 5 Lớp của PC bắt đầu hoạt động siêu tốc (Chưa đến 1 giây):
+   - So sánh biển số AI vừa đọc với Danh sách các biển số đã được ông khách cầm điện thoại đó gán ở cổng IN. (Chống trộm xe).
+   - Kiểm tra ví tiền của khách có đủ 5.000đ hoặc 3.000đ không?
+   - Nếu qua, PC báo Thành công. Điện thoại rung lên: "Mở Barie Thành công. Trừ 5.000đ".
+
+-------------------------------------------------------------------
+PHẦN 3: XỬ LÝ SỰ CỐ NHẬP TAY (TÍNH NĂNG MẠNH NHẤT CỦA BẢO VỆ)
+-------------------------------------------------------------------
+Trong điều kiện thực tế mưa bão, bùn lầy, AI không thể đọc được Biển số xe, hệ thống được thiết kế để kết hợp sức người mà không làm đứt đoạn App điện thoại.
+
+1. Sự cố lúc ĐI VÀO (IN):
+- Khách bấm lệnh IN trên điện thoại.
+- Camera máy tính mù tịt (Không nhìn thấy cái nét chữ nào). Thay vì báo lỗi sập hệ thống, Máy tính sẽ hiện lên một Popup đỏ chót cho Bảo vệ: "Camera gặp sự cố! Mời nhập tay cho lệnh app.".
+- Bảo vệ thò đầu ra cửa sổ nhìn con xe, gõ mã `29A-8888` vào bàn phím. Nhấn Enter.
+- Hệ thống tính toán như AI vừa phát hiện ra chữ `29A-8888`, và lưu nó vào điện thoại của khách hàng như quy trình bình thường.
+
+2. Sự cố lúc ĐI RA (OUT):
+- Cực kỳ thông minh: Khách bấm lệnh OUT. Camera lại mù do sương mù.
+- Máy tính PC lại hiện Bảng yêu cầu Nhập tay. NHƯNG KỲ DIỆU HƠN, máy tính đã lén rà soát trong bãi xem ông khách vừa bấm điện thoại có vứt con xe nào trong bãi không. 
+- Nó tìm thấy `29A-8888` ở cổng IN lúc sáng. Nó lập tức ĐIỀN SẴN `29A-8888` vào cái ô nhập tay!
+- Ông bảo vệ nhìn qua cửa sổ: Ồ đúng con xe vừa báo hỏng lúc sáng. Thay vì phải gõ mỏi tay, ổng chỉ cần đập cái kịch vào Phím Enter!
+- Rào chắn mở, tiền rút tự động vào App! Khách vui vẻ đi về.
+
+-------------------------------------------------------------------
+LƯU Ý DÀNH CHO CÁN BỘ VẬN HÀNH:
+-------------------------------------------------------------------
+- Camera IN và Camera OUT hoạt động song song. Nếu đây là ngoài đời thật, chúng ta cần 2 cái màn hình máy tính (1 cái IN, 1 cái OUT) để không phải bấm đi bấm lại Nút Mở Luồng. 
+- 100% lệnh chốt Barie đều phải kích hoạt từ Màn hình Điện Thoại của khách qua mã QR! PC chỉ là cái "Mắt đọc". 
+- Không tự ý xóa file `parking_data.json` nếu muốn giữ tiền của khách hàng.
+===================================================================
+Chúc bạn đạt kết quả xuất sắc với siêu phẩm Smart Parking System!

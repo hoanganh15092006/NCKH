@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="24dp">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="@drawable/circle_bg"
+            android:backgroundTint="@color/white"
+            android:elevation="2dp"
+            android:padding="4dp"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cài đặt"
+            android:textColor="@color/navy_blue"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+
+    <!-- Menu Items -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cá nhân"
+            android:textSize="16sp"
+            android:paddingVertical="16dp"
+            android:drawableLeft="@android:drawable/ic_menu_myplaces"
+            android:drawablePadding="16dp"
+            android:drawableRight="@android:drawable/ic_media_play" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thông báo"
+            android:textSize="16sp"
+            android:paddingVertical="16dp"
+            android:drawableLeft="@android:drawable/ic_dialog_info"
+            android:drawablePadding="16dp"
+            android:drawableRight="@android:drawable/ic_media_play" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cài đặt đăng nhập"
+            android:textSize="16sp"
+            android:paddingVertical="16dp"
+            android:drawableLeft="@android:drawable/ic_lock_lock"
+            android:drawablePadding="16dp"
+            android:drawableRight="@android:drawable/ic_media_play" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Liên hệ"
+            android:textSize="16sp"
+            android:paddingVertical="16dp"
+            android:drawableLeft="@android:drawable/ic_menu_call"
+            android:drawablePadding="16dp"
+            android:drawableRight="@android:drawable/ic_media_play" />
+
+    </LinearLayout>
+
+    <!-- Logout Button -->
+    <LinearLayout
+        android:id="@+id/btnLogout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="40dp">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_lock_power_off"
+            app:tint="@color/navy_blue" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đăng xuất"
+            android:textColor="@color/navy_blue"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+</LinearLayout>
