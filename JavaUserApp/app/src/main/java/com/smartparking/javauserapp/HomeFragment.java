@@ -24,10 +24,32 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import com.journeyapps.barcodescanner.ScanOptions;
+import com.journeyapps.barcodescanner.ScanContract;
+import androidx.activity.result.ActivityResultLauncher;
+
 public class HomeFragment extends Fragment {
     private String username;
     private String qrCodeStr;
     private TextView tvWelcome, tvBalance;
+
+    private final ActivityResultLauncher<ScanOptions> qrScannerLauncher = registerForActivityResult(new ScanContract(), result -> {
+        if (result.getContents() != null) {
+            String scannedData = result.getContents().toLowerCase();
+            String type = "";
+            if (scannedData.contains("in")) {
+                type = "in";
+            } else if (scannedData.contains("out")) {
+                type = "out";
+            }
+
+            if (!type.isEmpty()) {
+                performScan(type);
+            } else {
+                Toast.makeText(getContext(), "Mã QR không hợp lệ cho bãi xe!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    });
 
     @Nullable
     @Override
@@ -47,7 +69,7 @@ public class HomeFragment extends Fragment {
         LinearLayout btnScan = view.findViewById(R.id.btnScan);
 
         btnNavTopup.setOnClickListener(v -> showTopupDialog());
-        btnScan.setOnClickListener(v -> showScanDialog());
+        btnScan.setOnClickListener(v -> startQRScanner());
 
         loadUserInfo();
         return view;
@@ -115,21 +137,17 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void showScanDialog() {
+    private void startQRScanner() {
         if (qrCodeStr == null) {
-            Toast.makeText(getContext(), "Đang tải mã QR, thử lại sau.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Đang tải dữ liệu, vui lòng đợi...", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Chọn Làn Quét");
-        CharSequence[] options = {"Quét Mã Xe Vào (IN - 0đ)", "Quét Mã Xe Ra (OUT - Thanh toán)"};
-        
-        builder.setItems(options, (dialog, which) -> {
-            String type = (which == 0) ? "in" : "out";
-            showQRDialog(type);
-        });
-        builder.show();
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("Quét mã QR tại cổng Bãi xe (IN/OUT)");
+        options.setBeepEnabled(true);
+        options.setOrientationLocked(true);
+        options.setCaptureActivity(CaptureActivityPortrait.class); // We'll need to create this for portrait mode
+        qrScannerLauncher.launch(options);
     }
 
     private void showQRDialog(String type) {

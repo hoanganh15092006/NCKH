@@ -1,0 +1,23 @@
+# Android build files
+**/build/
+**/.gradle/
+**/captures/
+
+# IDE files
+**/.idea/
+**/*.iml
+**/*.ipr
+**/*.iws
+
+# Local configuration
+**/local.properties
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Other
+/parking_data.db
