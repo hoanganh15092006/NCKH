@@ -1,6 +1,7 @@
 package com.smartparking.javauserapp;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -100,23 +101,9 @@ public class HomeFragment extends Fragment {
     }
 
     private void showTopupDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Nạp Tiền GTVT");
-
-        final EditText input = new EditText(getContext());
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        input.setHint("Nhập số tiền (VND)");
-        builder.setView(input);
-
-        builder.setPositiveButton("Nạp", (dialog, which) -> {
-            String amountStr = input.getText().toString();
-            if (!amountStr.isEmpty()) {
-                int amount = Integer.parseInt(amountStr);
-                performTopup(amount);
-            }
-        });
-        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
-        builder.show();
+        Intent intent = new Intent(getContext(), TopupActivity.class);
+        intent.putExtra("username", username);
+        startActivity(intent);
     }
 
     private void performTopup(int amount) {

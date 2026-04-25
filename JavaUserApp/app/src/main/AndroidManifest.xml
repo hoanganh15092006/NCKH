@@ -24,6 +24,7 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".QrActivity" />
         <activity android:name=".RegisterActivity" />
+        <activity android:name=".TopupActivity" />
         <activity
             android:name=".CaptureActivityPortrait"
             android:screenOrientation="portrait"

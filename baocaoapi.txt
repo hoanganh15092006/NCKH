@@ -1,0 +1,231 @@
+BÁO CÁO CHI TIẾT HỆ THỐNG API SMART PARKING (NCKH)
+==================================================
+
+I. TỔNG QUAN HỆ THỐNG (SYSTEM OVERVIEW)
+--------------------------------------
+Hệ thống Smart Parking được thiết kế theo mô hình Client-Server. Trong đó:
+- Server: Được viết bằng Python sử dụng Flask Framework, chịu trách nhiệm xử lý logic, quản lý cơ sở dữ liệu MySQL và cung cấp các điểm truy cập (endpoints) cho ứng dụng di động.
+- Client: Là ứng dụng Android (JavaUserApp) sử dụng thư viện Retrofit để giao tiếp với Server qua giao thức HTTP/HTTPS.
+- Database: Sử dụng MySQL để lưu trữ thông tin người dùng, lịch sử đỗ xe, số dư tài khoản và trạng thái bãi xe.
+
+Mục tiêu của hệ thống API là tạo ra một cầu nối bảo mật và hiệu quả để người dùng có thể:
+1. Đăng ký/Đăng nhập tài khoản.
+2. Quản lý biển số xe cá nhân.
+3. Kiểm tra số dư và nạp tiền.
+4. Theo dõi lịch sử đỗ xe và trạng thái xe hiện tại trong bãi.
+5. Thực hiện quét mã QR để yêu cầu mở barie (Entry/Exit).
+
+II. CHI TIẾT BACKEND SERVER (FILE: api_server.py)
+------------------------------------------------
+File này là trái tim của hệ thống giao tiếp. Nó định nghĩa các route (đường dẫn) và cách xử lý dữ liệu.
+
+1. Khởi tạo và Cấu hình:
+- from flask import Flask, request, jsonify: Nhập các thư viện cần thiết để tạo web server, lấy dữ liệu yêu cầu và trả về định dạng JSON.
+- from flask_cors import CORS: Cho phép các nguồn khác nhau (Cross-Origin Resource Sharing) truy cập vào API, rất quan trọng khi mobile app hoặc web app gọi đến.
+- app = Flask(__name__): Khởi tạo ứng dụng Flask.
+- db = ParkingDB(): Khởi tạo đối tượng quản lý database (từ database.py).
+
+2. Phân tích các Endpoints:
+
+a. API Đăng nhập (/api/login):
+- Phương thức: POST.
+- Công dụng: Kiểm tra thông tin tài khoản người dùng.
+- Logic chi tiết:
+  + Lấy username và password từ JSON body.
+  + Gọi db._sync_mock_data() để đảm bảo dữ liệu trong RAM được cập nhật mới nhất từ MySQL.
+  + Kiểm tra nếu tài khoản tồn tại và mật khẩu khớp.
+  + Trả về JSON chứa success: True nếu đúng, ngược lại trả về lỗi 401 (Unauthorized).
+
+b. API Đăng ký (/api/register):
+- Phương thức: POST.
+- Công dụng: Tạo tài khoản mới cho người dùng.
+- Logic chi tiết:
+  + Kiểm tra xem username đã tồn tại chưa.
+  + Nếu chưa, thực hiện câu lệnh SQL INSERT INTO users để thêm người dùng mới.
+  + Tự động tạo một mã qr_code mặc định theo định dạng QR_username.
+  + Trả về thông báo thành công và mã QR vừa tạo.
+
+c. API Thông tin người dùng (/api/user/info):
+- Phương thức: GET.
+- Công dụng: Lấy thông tin cá nhân như số dư, danh sách biển số xe đã liên kết.
+- Tham số: username truyền qua Query String.
+- Logic: Tổng hợp dữ liệu từ các hàm db.get_balance, db.get_owned_plates, db.get_qr_code.
+
+d. API Nạp tiền (/api/user/topup):
+- Phương thức: POST.
+- Công dụng: Tăng số dư tài khoản.
+- Logic: Gọi db.add_balance và đồng thời ghi một bản ghi vào bảng lịch sử (history_records) để theo dõi dòng tiền.
+
+e. API Lịch sử (/api/user/history):
+- Phương thức: GET.
+- Công dụng: Trả về danh sách các lần xe vào/ra hoặc nạp tiền liên quan đến người dùng.
+- Logic: Lấy toàn bộ lịch sử và lọc ra các bản ghi có biển số xe thuộc sở hữu của người dùng đó.
+
+f. API Quét mã QR (/api/user/scan_qr):
+- Phương thức: POST.
+- Công dụng: Đây là tính năng nâng cao, cho phép người dùng quét QR tại trạm để gửi lệnh điều khiển barie từ xa.
+- Logic chi tiết:
+  + Xác định người dùng qua qr_code.
+  + Tạo một lệnh trong bảng remote_commands với trạng thái PENDING.
+  + Chạy một vòng lặp (loop) tối đa 15 giây để chờ Camera PC (phần mềm nhận diện biển số) xử lý lệnh này.
+  + Nếu Camera PC cập nhật trạng thái thành COMPLETED, API sẽ trả về thông báo "Mở barie thành công".
+
+g. API Trạng thái xe hoạt động (/api/user/active_sessions):
+- Phương thức: GET.
+- Công dụng: Cho người dùng biết xe của họ đang ở trong bãi hay đã ra, thời gian vào là khi nào.
+- Logic: So khớp danh sách biển số xe của người dùng với bảng active_sessions. Nếu không thấy trong bãi, nó sẽ lục lại lịch sử gần nhất để hiển thị thời gian ra.
+
+III. CHI TIẾT LỚP DỮ LIỆU (FILE: data/database.py)
+
+File này định nghĩa lớp ParkingDB, quản lý toàn bộ tương tác với MySQL.
+
+1. Cấu trúc bảng (Schema):
+- users: Lưu username, password, balance (số dư), qr_code.
+- owned_plates: Lưu liên kết giữa người dùng và các biển số xe (Một người có thể có nhiều xe).
+- active_sessions: Lưu thông tin các xe hiện đang đỗ trong bãi (Biển số, thời gian vào, đường dẫn ảnh chụp lúc vào).
+- history_records: Lưu nhật ký mọi giao dịch và sự kiện vào/ra.
+- remote_commands: Lưu các lệnh điều khiển barie từ xa được gửi từ App.
+
+2. Các phương thức quan trọng:
+- _create_tables(): Tự động tạo cấu trúc bảng nếu bãi xe lần đầu được cài đặt. Sử dụng IF NOT EXISTS để tránh lỗi.
+- link_plate(account, plate): Gắn một biển số xe vào tài khoản người dùng.
+- start_session(plate, image_path): Khi xe vào bãi, ghi nhận vào bảng active_sessions.
+- end_session(plate): Khi xe ra, xóa khỏi bảng active_sessions và trả về dữ liệu phiên đó để tính tiền/lưu lịch sử.
+- add_remote_command(qr_plate, cmd_type): Thêm một yêu cầu điều khiển từ xa vào hàng đợi.
+
+IV. CHI TIẾT MOBILE CLIENT (JAVA USER APP)
+-----------------------------------------
+
+1. Cấu hình Client (ApiClient.java):
+- Sử dụng thư viện Retrofit.
+- BASE_URL: Địa chỉ của Server (thường qua Ngrok để App thực tế có thể truy cập qua Internet).
+- GsonConverterFactory: Tự động chuyển đổi dữ liệu JSON từ Server thành các đối tượng Java (Map, List, Class) và ngược lại.
+
+2. Giao diện API (ApiService.java):
+Đây là nơi định nghĩa các "hàm ảo" ánh xạ trực tiếp đến các route trên Server.
+- @POST("api/login"): Ánh xạ đến hàm login trên server. Sử dụng @Body để truyền dữ liệu.
+- @GET("api/user/info"): Ánh xạ đến lấy thông tin. Sử dụng @Query để truyền tham số trên URL.
+- Các kiểu trả về đều là Call<Map<String, Object>>, cho phép xử lý bất đồng bộ (Asynchronous) trên Android mà không gây treo ứng dụng (ANR).
+
+V. LUỒNG XỬ LÝ DỮ LIỆU (DATA FLOW)
+----------------------------------
+Hãy lấy ví dụ luồng "Đăng nhập và Kiểm tra số dư":
+1. Người dùng nhập tên/mật khẩu trên App Android.
+2. LoginActivity gọi ApiService.login().
+3. Retrofit đóng gói dữ liệu thành JSON và gửi Request POST đến http://server-ip:5000/api/login.
+4. Flask nhận Request, api_server.py trích xuất dữ liệu và kiểm tra với MySQL thông qua ParkingDB.
+5. Server trả về JSON: {"success": true, "username": "admin"}.
+6. App Android nhận Response, lưu username vào SharedPreferences và chuyển sang màn hình chính.
+7. Tại màn hình chính, App tiếp tục gọi getUserInfo để lấy số dư và hiển thị lên UI.
+
+VI. Ý NGHĨA CÁC CÂU LỆNH CHÍNH (KEY COMMANDS EXPLANATION)
+------------------------------------------------------
+- app.route('/path', methods=['POST']): Định nghĩa một đường dẫn API. Nếu không có cái này, server sẽ không biết xử lý yêu cầu gửi đến đâu.
+- request.json.get('key'): Lấy giá trị của một trường dữ liệu từ Client gửi lên.
+- db.conn.cursor(): Tạo một con trỏ để thực thi các lệnh SQL.
+- c.execute(sql, params): Thực thi lệnh SQL một cách an toàn (tránh lỗi SQL Injection).
+- jsonify(data): Chuyển đổi từ điển Python (dict) sang chuỗi JSON để gửi về cho App.
+- Retrofit.Builder().baseUrl(...): Thiết lập địa chỉ gốc cho mọi yêu cầu từ App.
+- @Body Map<String, String> body: Khai báo rằng dữ liệu sẽ được gửi trong phần thân của yêu cầu (thường dùng cho POST).
+
+VII. CÔNG DỤNG VÀ TẦM QUAN TRỌNG
+-------------------------------
+Hệ thống API này đóng vai trò là "bộ não" trung gian. Nếu không có nó:
+- App Android sẽ không biết lấy dữ liệu từ đâu.
+- Cơ sở dữ liệu sẽ không được cập nhật đồng bộ.
+- Các thiết bị phần cứng (Camera, Barie) sẽ không thể giao tiếp được với ứng dụng của người dùng.
+Việc tách rời API và Database giúp hệ thống có tính mở rộng cao: Bạn có thể viết thêm App trên iOS hoặc Web mà không cần sửa đổi mã nguồn xử lý dữ liệu ở Server.
+
+VIII. PHÂN TÍCH SÂU CHI TIẾT TỪNG HÀM TRONG DATABASE.PY
+-----------------------------------------------------
+
+Lớp ParkingDB không chỉ đơn thuần là kết nối CSDL, nó còn quản lý logic nghiệp vụ phức tạp.
+
+1. Hàm __init__:
+- Nhiệm vụ: Thiết lập môi trường làm việc.
+- Chi tiết:
+  + Dòng 17: Khởi tạo self.data. Đây là một bộ đệm (cache) trong bộ nhớ để truy xuất nhanh các tài khoản và phiên làm việc mà không cần lúc nào cũng truy vấn SQL.
+  + Dòng 18-20: Tự động tạo các thư mục lưu trữ ảnh (xe_vao, xe_ra, xe_trong_bai). Điều này giúp hệ thống hoạt động ổn định ngay cả khi cài đặt trên máy tính mới mà chưa có cấu trúc thư mục.
+  + Dòng 23-27: Kết nối "tạm" đến MySQL để tạo Database parking_db. Đây là bước chuẩn bị cực kỳ quan trọng để đảm bảo script không bị crash nếu database chưa tồn tại.
+  + Dòng 30: Kết nối chính thức với autocommit=True. Việc bật autocommit giúp mọi thay đổi (Insert, Update, Delete) được thực thi ngay lập tức mà không cần gọi commit() thủ công, giảm thiểu rủi ro mất dữ liệu khi có sự cố.
+
+2. Hàm _create_tables:
+- Đây là nơi định nghĩa "khung xương" của dữ liệu.
+- Bảng remote_commands (Dòng 73): Được thiết kế để làm cầu nối đồng bộ giữa App Mobile và PC Camera. Cột status có các giá trị: PENDING (đang chờ), COMPLETED (đã xong), FAILED (thất bại). Cơ chế này giống như một hàng đợi tin nhắn (Message Queue) đơn giản.
+
+3. Hàm add_balance và deduct_balance:
+- Đây là hai hàm cốt lõi của hệ thống ví điện tử.
+- add_balance: Tự động kiểm tra nếu người dùng chưa có trong bảng users thì sẽ tạo mới với mật khẩu mặc định. Điều này tạo ra trải nghiệm "Lazy Registration" mượt mà.
+- deduct_balance: Kiểm tra số dư trước khi trừ tiền. Nếu current >= amount, hệ thống mới thực hiện lệnh UPDATE. Đây là quy tắc bất di bất dịch trong các ứng dụng tài chính để tránh số dư âm.
+
+4. Hàm start_session và end_session:
+- Quản lý trạng thái xe đỗ.
+- start_session: Sử dụng lệnh REPLACE INTO. Lệnh này đặc biệt ở chỗ nếu biển số xe đã tồn tại (do lỗi hệ thống hoặc xe vào lại quá nhanh), nó sẽ xóa bản ghi cũ và ghi đè bản ghi mới.
+- end_session: Lấy thông tin phiên đỗ xe (thời gian vào) trước khi xóa nó khỏi bảng active_sessions. Thông tin này sau đó được dùng để tính toán thời gian đỗ và phí gửi xe.
+
+IX. PHÂN TÍCH CHI TIẾT CÁC DECORATOR TRONG FLASK (API_SERVER.PY)
+--------------------------------------------------------------
+
+Trong Flask, @app.route là một decorator dùng để đăng ký một hàm xử lý cho một URL cụ thể.
+
+1. @app.route('/api/user/scan_qr', methods=['POST']):
+- Đây là endpoint phức tạp nhất.
+- Tại sao phải có vòng lặp for _ in range(15)?
+- Giải thích: Khi người dùng bấm "Mở cổng" trên App, Server chỉ ghi nhận yêu cầu vào Database. Phần mềm nhận diện biển số (chạy trên một máy tính khác tại cổng bãi xe) sẽ liên tục kiểm tra Database này. Khi nó thấy lệnh, nó sẽ điều khiển Barie vật lý và cập nhật kết quả lại Database. Trong thời gian đó, API Server phải "treo" yêu cầu của người dùng để chờ kết quả. 15 giây là thời gian chờ (timeout) hợp lý để đảm bảo trải nghiệm người dùng không quá lâu nhưng đủ để phần cứng phản hồi.
+
+2. @app.route('/api/user/active_sessions', methods=['GET']):
+- Hàm này xử lý logic "thông minh". Nếu một xe vừa mới ra khỏi bãi, nó sẽ không còn nằm trong active_sessions. Tuy nhiên, người dùng vẫn muốn biết xe mình đã ra lúc nào.
+- Logic ở dòng 133-145: Duyệt ngược lịch sử (history_records) để tìm lần "Ra" và lần "Vào" gần nhất của biển số xe đó. Kết quả trả về cho App sẽ hiển thị trạng thái cực kỳ chi tiết.
+
+X. KIẾN TRÚC RETROFIT TRONG ANDROID (PHẦN MOBILE)
+------------------------------------------------
+
+Tại sao lại sử dụng Retrofit mà không phải HttpURLConnection hay Volley?
+- Retrofit là thư viện Type-Safe cho Android. Nó biến API của bạn thành một Interface Java thực thụ.
+- Giảm thiểu mã lặp (Boilerplate code). Bạn không cần viết code mở kết nối, đọc stream, hay parse JSON thủ công.
+- Tích hợp sâu với GSON: Tự động chuyển đổi các kiểu dữ liệu phức tạp. Ví dụ: Call<Map<String, Object>> giúp bạn nhận được một cấu trúc dữ liệu dạng cây (Key-Value) cực kỳ linh hoạt ngay trong Java.
+
+Phân tích ApiClient.java:
+- Sử dụng mẫu thiết kế Singleton (if (retrofit == null)). Điều này đảm bảo trong suốt vòng đời ứng dụng, chỉ có một đối tượng Retrofit duy nhất được khởi tạo, giúp tiết kiệm bộ nhớ và tài nguyên mạng.
+- BASE_URL: Địa chỉ máy chủ. Lưu ý quan trọng: Android không cho phép kết nối http (không bảo mật) mặc định từ phiên bản 9 trở đi. Việc sử dụng Ngrok cấp một URL https giúp giải quyết vấn đề này mà không cần cài đặt chứng chỉ SSL phức tạp cho server địa phương.
+
+XI. CÁCH TRIỂN KHAI VÀ VẬN HÀNH API
+----------------------------------
+
+1. Cài đặt môi trường Server:
+- Cần cài đặt Python 3.x.
+- Các thư viện: pip install flask flask-cors pymysql.
+- MySQL Server (XAMPP hoặc MySQL Installer).
+
+2. Chạy Server:
+- Lệnh: python api_server.py.
+- Server sẽ lắng nghe tại cổng 5000. Bạn cần cấu hình Port Forwarding hoặc dùng Ngrok để expose ra internet cho App Mobile kết nối.
+
+3. Debugging API:
+- Có thể sử dụng các công cụ như Postman hoặc Insomnia để giả lập các yêu cầu từ App Mobile.
+- Ví dụ: Gửi một POST request đến /api/login với body {"username": "admin", "password": "123"} để xem Server phản hồi gì trước khi viết code trên Android.
+
+XII. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+---------------------------------
+Hệ thống API Smart Parking hiện tại đã đáp ứng đầy đủ các tính năng cơ bản của một bãi đỗ xe hiện đại. Với cấu trúc module hóa rõ ràng giữa API Server và Database logic, hệ thống rất dễ bảo trì và nâng cấp.
+Hướng phát triển tương lai:
+- Bổ sung JWT (JSON Web Token) để tăng cường bảo mật cho mỗi yêu cầu.
+- Tích hợp thêm các cổng thanh toán trực tuyến (MoMo, VNPay) thông qua các endpoint API nạp tiền mới.
+- Sử dụng WebSocket để thông báo trạng thái xe vào/ra cho người dùng theo thời gian thực (Real-time notifications) thay vì phải load lại trang.
+
+XIII. PHỤ LỤC: LUỒNG THANH TOÁN VIETQR (MB BANK)
+----------------------------------------------
+Để tối ưu trải nghiệm người dùng, hệ thống đã tích hợp phương thức nạp tiền thông minh qua VietQR:
+
+1. Cơ chế hoạt động:
+   - Khi người dùng nhập số tiền X và chọn "Chuyển khoản MB Bank".
+   - App tự động tạo mã URL theo chuẩn VietQR: `https://img.vietqr.io/image/MB-0916191655-compact2.png?amount=X&addInfo=Nap_Tien_Username`.
+   - Hệ thống sử dụng `Intent.ACTION_VIEW` để mở trình duyệt hoặc ứng dụng ngân hàng có sẵn trên điện thoại.
+
+2. Ưu điểm:
+   - **Chính xác tuyệt đối**: Tự động điền số tài khoản, tên chủ tài khoản và số tiền cần chuyển. Người dùng không cần nhập tay, tránh sai sót.
+   - **Tốc độ**: Giảm thiểu thời gian thao tác từ 2 phút xuống còn 10 giây.
+   - **Tính linh hoạt**: Hỗ trợ hầu hết các ngân hàng tại Việt Nam thông qua mạng lưới NAPAS.
+
+--- KẾT THÚC BÁO CÁO CHI TIẾT ---
+Bản tài liệu này là hướng dẫn toàn tập cho bất kỳ lập trình viên nào muốn hiểu và làm chủ hệ thống API của dự án NCKH Smart Parking.
