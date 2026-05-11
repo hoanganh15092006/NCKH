@@ -2,8 +2,14 @@ import sys
 import os
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+
+# Sử dụng tf_keras để tương thích với model cũ
+try:
+    import tf_keras as keras
+    from tf_keras import layers
+except ImportError:
+    from tensorflow import keras
+    from tensorflow.keras import layers
 
 # Không dùng GPU
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -27,6 +33,8 @@ def LoadModel(file):
     if ext == ".json":
         with open(file, "r") as json_file:
             json_model = json_file.read()
+        # Fix lỗi Keras 3 không nhận diện 'Functional'
+        json_model = json_model.replace('"class_name": "Functional"', '"class_name": "Model"')
         model = keras.models.model_from_json(json_model)
         model.load_weights(name + ".wgt")
     else:

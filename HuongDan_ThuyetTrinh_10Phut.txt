@@ -1,0 +1,76 @@
+================================================================================
+HƯỚNG DẪN LÀM SLIDE & KỊCH BẢN THUYẾT TRÌNH BẢO VỆ NCKH (10 PHÚT)
+Dự án: HỆ THỐNG QUẢN LÝ BÃI ĐỖ XE THÔNG MINH - SMART PARKING
+================================================================================
+
+PHẦN 1: HƯỚNG DẪN LÀM SLIDE (Khoảng 10-12 Slide)
+--------------------------------------------------------------------------------
+Nguyên tắc chung: Ít chữ, nhiều hình ảnh/sơ đồ. Chữ chỉ dùng làm từ khóa (bullet points). Cỡ chữ tối thiểu 24.
+Màu sắc chủ đạo: Xanh Navy và Trắng (giống màu của App) để tạo sự đồng bộ và chuyên nghiệp.
+
+Danh sách các Slide gợi ý:
+1. Slide Tiêu đề: Tên đề tài, Tên sinh viên thực hiện, Giảng viên hướng dẫn. (Có logo trường).
+2. Slide Đặt vấn đề: Hình ảnh bãi xe kẹt cứng, vé giấy vứt lung tung, cảnh thu tiền lẻ mất thời gian.
+3. Slide Giải pháp & Mục tiêu: Giới thiệu hệ thống Smart Parking (Tự động, Nhanh chóng, Không tiền mặt).
+4. Slide Tổng quan Hệ thống (Kiến trúc): Sơ đồ luồng hoạt động giữa 3 thành phần: Camera PC <-> Backend Server (Flask/MySQL) <-> App Mobile (Android).
+5. Slide Công nghệ cốt lõi 1 (Nhận diện & Giao tiếp): Hình minh họa Camera nhận diện biển số và App quét QR mở Barie.
+6. Slide Công nghệ cốt lõi 2 (Thanh toán & RPA): Sơ đồ luồng thanh toán VietQR và tự động đối soát ngân hàng MB Bank bằng AI (Giải mã Captcha). => Nhấn mạnh đây là điểm sáng tạo.
+7. Slide Giao diện Ứng dụng: Chèn 3-4 hình ảnh chụp màn hình đẹp nhất của App (Trang chủ, Quét QR, Nạp tiền, Lịch sử).
+8. Slide Demo (Video hoặc Live): (Khuyên dùng Video quay sẵn quá trình xe vào, app trừ tiền, barie mở).
+9. Slide Kết quả đạt được: Các số liệu (thời gian qua cổng < 3s, độ chính xác nhận diện > 95%, nạp tiền tự động 100%).
+10. Slide Hướng phát triển: Tích hợp nhiều ngân hàng hơn, định vị chỗ trống trong bãi.
+11. Slide Cảm ơn & Q&A.
+
+
+PHẦN 2: KỊCH BẢN THUYẾT TRÌNH (Thời lượng: ~10 Phút)
+--------------------------------------------------------------------------------
+(Gợi ý tốc độ nói: Vừa phải, nhấn nhá ở những điểm công nghệ cốt lõi như AI, RPA, VietQR. Mỉm cười và giao tiếp bằng mắt với hội đồng).
+
+[Bắt đầu - Slide 1: Tiêu đề] (0.5 phút)
+Kính thưa Hội đồng Giám khảo, quý thầy cô và các bạn sinh viên thân mến. Em là [Tên của bạn]. Hôm nay, em rất vinh dự được trình bày về đề tài Nghiên cứu Khoa học của mình với chủ đề: "Xây dựng Hệ thống Quản lý Bãi đỗ xe Thông minh - Smart Parking, tích hợp nhận diện hình ảnh và thanh toán tự động".
+
+[Slide 2: Đặt vấn đề] (1 phút)
+Thưa quý vị, hình ảnh những bãi gửi xe ùn tắc vào giờ cao điểm, khói bụi, tiếng còi xe ầm ĩ khi mọi người phải chờ đợi để quẹt thẻ hay trả tiền lẻ đã quá quen thuộc tại Việt Nam. Không chỉ gây lãng phí thời gian, hệ thống dùng vé giấy hay thẻ từ truyền thống còn tiềm ẩn rủi ro thất lạc, làm giả, và tốn kém chi phí nhân sự.
+Từ thực trạng đó, em đặt ra câu hỏi: Làm sao để hiện đại hóa hoàn toàn quy trình này, biến chiếc điện thoại thông minh của người dùng thành một "chiếc vé điện tử" đa năng, vừa định danh, vừa thanh toán?
+
+[Slide 3: Giải pháp] (1 phút)
+Để giải quyết bài toán trên, em đã nghiên cứu và phát triển Hệ thống "Smart Parking". Giải pháp của em hướng tới 3 tiêu chí: "Không chờ đợi, Không tiền mặt, Không chạm". 
+Hệ thống kết hợp phần mềm nhận diện biển số tại cổng, một Backend Server mạnh mẽ để xử lý dữ liệu, và một ứng dụng Mobile dành cho người dùng cuối. 
+
+[Slide 4: Kiến trúc hệ thống] (1.5 phút)
+Về mặt kiến trúc, hệ thống được thiết kế theo mô hình Client-Server hiện đại, chia làm 3 cụm chính:
+Thứ nhất là Cụm Local tại bãi xe: Nơi Camera IP hoạt động liên tục để nhận diện biển số xe ra vào bằng AI.
+Thứ hai là Backend Server: Trái tim của hệ thống, được em xây dựng bằng Python Flask kết hợp cơ sở dữ liệu MySQL. Server này cung cấp các RESTful API chuẩn mực để giao tiếp với các nền tảng khác. 
+Thứ ba là Mobile App: Ứng dụng Android được phát triển bằng Java, sử dụng Retrofit để kết nối với Server, mang lại trải nghiệm mượt mà cho người dùng từ việc quản lý xe đến nạp tiền.
+
+[Slide 5: Trải nghiệm & Tính năng cốt lõi] (1.5 phút)
+Hãy hình dung trải nghiệm của một người dùng. Khi họ tải App và đăng ký biển số xe, mọi thứ sẽ diễn ra hoàn toàn tự động. 
+Khi xe đến cổng, Camera nhận diện biển số, gửi lên Server. Server đối chiếu nếu xe này thuộc về một tài khoản hợp lệ và có đủ số dư, lệnh mở Barie sẽ được phát ra ngay lập tức. Toàn bộ quá trình chỉ mất chưa tới 3 giây.
+Đặc biệt, trong trường hợp nhận diện gặp khó khăn do thời tiết, em đã trang bị tính năng "Quét QR mở cổng từ xa" ngay trên App Mobile, biến chiếc điện thoại thành chiếc điều khiển cá nhân, vô cùng tiện lợi.
+
+[Slide 6: Công nghệ thanh toán tự động - ĐIỂM NHẤN] (2.5 phút)
+Thưa Hội đồng, điểm mà em tâm đắc nhất và tốn nhiều công sức nghiên cứu nhất trong dự án này chính là Module Tự động hóa thanh toán.
+Ở các hệ thống thông thường, người dùng chuyển khoản xong phải chờ Admin duyệt thủ công. Nhưng ở Smart Parking, em đã hiện thực hóa luồng nạp tiền tự động 100%.
+- Đầu tiên, App sinh ra mã VietQR tự động điền sẵn số tiền và mã định danh người dùng.
+- Thứ hai, em áp dụng công nghệ RPA (Robotic Process Automation) kết hợp với Trí tuệ nhân tạo (AI). Cụ thể, em viết một script tự động chạy nền (sử dụng Puppeteer) để truy cập vào hệ thống ngân hàng MB Bank.
+- Rào cản lớn nhất là ngân hàng yêu cầu nhập mã CAPTCHA hình ảnh. Để vượt qua, em đã triển khai một mô hình Mạng Nơ-ron Tích chập (CNN) huấn luyện bằng TensorFlow để nhận diện và giải mã CAPTCHA.
+Nhờ đó, mỗi khi có giao dịch mới vào tài khoản, hệ thống tự động đối soát lịch sử (bank scraping) và báo về Server để cộng tiền vào ví người dùng chỉ trong vài giây. Quy trình khép kín, bảo mật và không tốn chi phí thuê cổng thanh toán trung gian.
+
+[Slide 7: Giao diện ứng dụng] (0.5 phút)
+Và đây là giao diện của ứng dụng Mobile. Như quý vị thấy, em sử dụng thiết kế tối giản, tông màu xanh navy chuyên nghiệp. Người dùng có thể dễ dàng xem số dư hiện tại, thực hiện nạp tiền chỉ với 2 chạm, và theo dõi trực tiếp tình trạng xe của mình (đang ở trong bãi hay đã ra, vào lúc mấy giờ) ngay trên màn hình chính.
+
+[Slide 8: Demo Video/Thực tế] (1 phút)
+(Lúc này bạn bật video demo lên, kết hợp chỉ tay và nói theo diễn biến video)
+"Đây là video em quay lại quá trình hoạt động thực tế. Anh/chị có thể thấy, khi người dùng thao tác quét QR trên App, hệ thống lập tức ghi nhận lệnh. Camera PC bắt được tín hiệu, Barie ảo mở ra, và số dư trên điện thoại bị trừ ngay tức khắc kèm theo lịch sử được cập nhật thời gian thực."
+
+[Slide 9: Kết quả đạt được] (0.5 phút)
+Đúc kết lại, dự án đã hoàn thành các mục tiêu đề ra ban đầu:
+- Hoàn thiện luồng phần mềm khép kín từ App đến Server và PC Local.
+- Áp dụng thành công AI trong cả việc nhận diện biển số lẫn giải mã CAPTCHA đối soát thanh toán.
+- Hệ thống chạy ổn định, độ trễ API dưới 200ms, trải nghiệm người dùng mượt mà.
+
+[Slide 10 & 11: Hướng phát triển & Lời Cảm ơn] (0.5 phút)
+Mặc dù đã đạt được những kết quả nhất định, hệ thống vẫn còn tiềm năng mở rộng. Trong tương lai, em định hướng sẽ tích hợp thêm hệ thống định vị chỗ trống trong bãi bằng cảm biến siêu âm, và hỗ trợ đa nền tảng hơn như iOS hay Web.
+Em xin gửi lời cảm ơn chân thành đến giảng viên hướng dẫn đã luôn hỗ trợ em trong suốt quá trình nghiên cứu. Cảm ơn Hội đồng đã lắng nghe bài thuyết trình của em. Sau đây, em rất mong nhận được những nhận xét và câu hỏi từ quý thầy cô ạ.
+Em xin chân thành cảm ơn!
+================================================================================

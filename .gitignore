@@ -21,3 +21,15 @@ Thumbs.db
 
 # Other
 /parking_data.db
+
+# Node.js
+**/node_modules/
+**/package-lock.json
+
+# Python
+**/__pycache__/
+**/*.pyc
+
+# Local Data
+mbbank/login_data.json
+mbbank/history.json

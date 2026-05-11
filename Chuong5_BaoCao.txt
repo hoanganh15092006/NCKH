@@ -1,0 +1,201 @@
+CHƯƠNG 5: API VÀ TỰ ĐỘNG HÓA THANH TOÁN
+
+5.1. BACKEND SEVER (file: api_server.py)
+
+5.1.1. Khởi tạo và cấu hình
+- from flask import Flask, request, jsonify: Nhập các thư viện cần thiết để tạo web server, lấy dữ liệu yêu cầu và trả về định dạng JSON.
+- from flask_cors import CORS: Cho phép các nguồn khác nhau (Cross-Origin Resource Sharing) truy cập vào API, rất quan trọng khi mobile app hoặc web app gọi đến.
+- app = Flask(__name__): Khởi tạo ứng dụng Flask.
+- db = ParkingDB(): Khởi tạo đối tượng quản lý database (từ database.py).
+
+5.1.2. Phân tích các Endpoints:
+a. API Đăng nhập (/api/login):
+- Phương thức: POST.
+- Công dụng: Kiểm tra thông tin tài khoản người dùng.
+- Logic chi tiết:
+  + Lấy username và password từ JSON body.
+  + Gọi db._sync_mock_data() để đảm bảo dữ liệu trong RAM được cập nhật mới nhất từ MySQL.
+  + Kiểm tra nếu tài khoản tồn tại và mật khẩu khớp.
+  + Trả về JSON chứa success: True nếu đúng, ngược lại trả về lỗi 401 (Unauthorized).
+
+b. API Đăng ký (/api/register):
+- Phương thức: POST.
+- Công dụng: Tạo tài khoản mới cho người dùng.
+- Logic chi tiết:
+  + Kiểm tra xem username đã tồn tại chưa.
+  + Nếu chưa, thực hiện câu lệnh SQL INSERT INTO users để thêm người dùng mới.
+  + Tự động tạo một mã qr_code mặc định theo định dạng QR_username.
+  + Trả về thông báo thành công và mã QR vừa tạo.
+
+c. API Thông tin người dùng (/api/user/info):
+- Phương thức: GET.
+- Công dụng: Lấy thông tin cá nhân như số dư, danh sách biển số xe đã liên kết.
+- Tham số: username truyền qua Query String.
+- Logic: Tổng hợp dữ liệu từ các hàm db.get_balanc, db.get_owned_plates, db.get_qr_code.
+
+d. API Nạp tiền (/api/user/topup):
+- Phương thức: POST.
+- Công dụng: Tăng số dư tài khoản.
+- Logic: Gọi db.add_balance và đồng thời ghi một bản ghi vào bảng lịch sử (history_records) để theo dõi dòng tiền.
+
+e. API Lịch sử (/api/user/history):
+- Phương thức: GET.
+- Công dụng: Trả về danh sách các lần xe vào/ra hoặc nạp tiền liên quan đến người dùng.
+- Logic: Lấy toàn bộ lịch sử và lọc ra các bản ghi có biển số xe thuộc sở hữu của người dùng đó.
+
+f. API Quét mã QR (/api/user/scan_qr):
+- Phương thức: POST.
+- Công dụng: Đây là tính năng nâng cao, cho phép người dùng quét QR tại trạm để gửi lệnh điều khiển barie từ xa.
+- Logic chi tiết:
+  + Xác định người dùng qua qr_code.
+  + Tạo một lệnh trong bảng remote_commands với trạng thái PENDING.
+  + Chạy một vòng lặp (loop) tối đa 15 giây để chờ Camera PC (phần mềm nhận diện biển số) xử lý lệnh này.
+  + Nếu Camera PC cập nhật trạng thái thành COMPLETED, API sẽ trả về thông báo "Mở barie thành công".
+
+g. API Trạng thái xe hoạt động (/api/user/active_sessions):
+- Phương thức: GET.
+- Công dụng: Cho người dùng biết xe của họ đang ở trong bãi hay đã ra, thời gian vào là khi nào.
+- Logic: So khớp danh sách biển số xe của người dùng với bảng active_sessions. Nếu không thấy trong bãi, nó sẽ lục lại lịch sử gần nhất để hiển thị thời gian ra.
+
+5.1.3. Vì sao api này có thể tương thích trên nhiều nền tảng?
+1. host='0.0.0.0'
+Ý nghĩa: Cho phép Server lắng nghe các yêu cầu từ tất cả các địa chỉ IP trong mạng nội bộ.
+Tại sao quan trọng?
+Nếu bạn để mặc định (127.0.0.1), chỉ có máy tính đang chạy code mới truy cập được API.
+Khi để 0.0.0.0, điện thoại Android của bạn (nếu kết nối cùng Wifi với máy tính) có thể truy cập được vào API thông qua địa chỉ IP của máy tính. Đây là chìa khóa để App Mobile và Server "thấy" nhau.
+
+2. port=5000
+Ý nghĩa: Xác định "cánh cổng" (port) mà Server sẽ mở ra để nhận dữ liệu.
+Chi tiết: 5000 là cổng mặc định của Flask. Bạn có thể đổi thành các số khác (như 8000, 8080) nếu cổng 5000 đang bị phần mềm khác chiếm dụng.
+
+3. debug=True (Chế độ gỡ lỗi)
+Tự động tải lại (Auto-reload): Mỗi khi bạn sửa code Python và lưu lại, Server sẽ tự động khởi động lại mà bạn không cần phải tắt đi bật lại thủ công.
+Thông báo lỗi chi tiết: Nếu code bị lỗi, thay vì chỉ báo "Server Error", nó sẽ hiển thị chi tiết dòng nào bị lỗi và lỗi gì ngay trên màn hình terminal hoặc trình duyệt.
+
+5.2. PHÂN TÍCH CHI TIẾT CÁC DECORATOR TRONG FLASK(file: api_server.py)
+
+5.2.1. Câu lệnh”@app.route('/api/user/scan_qr', methods=['POST'])- users”
+- Đây là endpoint phức tạp nhất.
+Tại sao phải có vòng lặp for _ in range(15)?
+- Giải thích: Khi người dùng bấm "Mở cổng" trên App, Server chỉ ghi nhận yêu cầu vào Database. Phần mềm nhận diện biển số (chạy trên một máy tính khác tại cổng bãi xe) sẽ liên tục kiểm tra Database này. Khi nó thấy lệnh, nó sẽ điều khiển Barie vật lý và cập nhật kết quả lại Database. Trong thời gian đó, API Server phải "treo" yêu cầu của người dùng để chờ kết quả. 15 giây là thời gian chờ (timeout) hợp lý để đảm bảo trải nghiệm người dùng không quá lâu nhưng đủ để phần cứng phản hồi.
+
+5.2.2. Câu lệnh “@app.route('/api/user/active_sessions', methods=['GET'])”
+- Hàm này xử lý logic "thông minh". Nếu một xe vừa mới ra khỏi bãi, nó sẽ không còn nằm trong active_sessions. Tuy nhiên, người dùng vẫn muốn biết xe mình đã ra lúc nào.
+- Logic ở dòng 133-145: Duyệt ngược lịch sử (history_records) để tìm lần "Ra" và lần "Vào" gần nhất của biển số xe đó. Kết quả trả về cho App sẽ hiển thị trạng thái cực kỳ chi tiết.
+
+5.3. API MOBILE CLIENT
+
+5.3.1. Cấu hình Client (ApiClient.java)
+- Sử dụng thư viện Retrofit.
+- BASE_URL: Địa chỉ của Server (thường qua Ngrok để App thực tế có thể truy cập qua Internet).
+- GsonConverterFactory: Tự động chuyển đổi dữ liệu JSON từ Server thành các đối tượng Java (Map, List, Class) và ngược lại.
+
+5.3.2. Giao diện API (ApiService.java)
+Đây là nơi định nghĩa các "hàm ảo" ánh xạ trực tiếp đến các route trên Server.
+- @POST("api/login"): Ánh xạ đến hàm login trên server. Sử dụng @Body để truyền dữ liệu.
+- @GET("api/user/info"): Ánh xạ đến lấy thông tin. Sử dụng @Query để truyền tham số trên URL.
+- Các kiểu trả về đều là Call<Map<String, Object>>, cho phép xử lý bất đồng bộ (Asynchronous) trên Android mà không gây treo ứng dụng (ANR).
+
+5.4. LUỒNG XỬ LÝ DỮ LIỆU (DATA FLOW)
+
+5.4.1. Người dùng nhập tên/mật khẩu trên App Android
+Thao tác: Người dùng mở ứng dụng, nhập username (ví dụ: admin) và password (ví dụ: 123456) vào các EditText.
+Kỹ thuật: Khi bấm nút "Login", LoginActivity sẽ trích xuất chuỗi từ các ô nhập liệu. Trước khi gửi đi, mã nguồn thường thực hiện kiểm tra sơ bộ (Validation) như: không được để trống, độ dài tối thiểu,...
+
+5.4.2. LoginActivity gọi ApiService.login()
+Thao tác: LoginActivity tạo một Map<String, String> chứa thông tin đăng nhập và truyền vào hàm ApiService.login(body).
+Kỹ thuật: ApiService là một Java Interface được cấu trúc theo thư viện Retrofit. Việc gọi hàm này không thực thi ngay lập tức mà trả về một đối tượng Call. Đối tượng này đại diện cho một "lời hứa" (Promise) rằng sẽ có kết quả trả về trong tương lai.
+
+5.4.3. Retrofit đóng gói dữ liệu thành JSON và gửi Request POST đến http://server-ip:5000/api/login
+Thao tác: Retrofit sử dụng thư viện GSON để biến Map (đối tượng Java) thành một chuỗi JSON: {"username": "admin", "password": "123456"}.
+Kỹ thuật:
+*Một HTTP POST Request được khởi tạo.
+- Header: Content-Type: application/json.
+- Body: Chuỗi JSON vừa tạo.
+- Đường truyền: Dữ liệu đi qua Internet. Nếu bạn đang dùng Ngrok, yêu cầu sẽ đến máy chủ của Ngrok trước, sau đó được "đường dẫn" (tunneling) về máy tính cá nhân (localhost) của bạn đang chạy Server Python.
+
+5.4.4. Flask nhận Request, api_server.py trích xuất dữ liệu và kiểm tra với MySQL thông qua ParkingDB
+Thao tác: Flask nhận yêu cầu tại route @app.route('/api/login', methods=['POST']).
+Kỹ thuật:
+- request.json trong Flask tự động giải mã chuỗi JSON từ App gửi lên thành một Dictionary trong Python.
+- Server gọi db._sync_mock_data() để nạp danh sách tài khoản từ MySQL vào bộ nhớ đệm (RAM) của Server.
+- SQL thực thi: SELECT * FROM users WHERE username = 'admin'. Server so sánh mật khẩu gửi lên với mật khẩu lưu trong DB.
+- An toàn: Việc sử dụng thư viện pymysql với tham số hóa (parameterized queries) giúp ngăn chặn tấn công SQL Injection.
+
+5.4.5. Server trả về JSON: {"success": true, "username": "admin"}
+Thao tác: Nếu khớp, Flask thực hiện return jsonify({"success": True, "username": "admin"}).
+Kỹ thuật:
+- Server trả về HTTP Status Code: 200 OK.
+- Dữ liệu được đóng gói lại thành định dạng JSON để gửi ngược về điện thoại. Nếu sai mật khẩu, Server sẽ trả về 401 Unauthorized kèm thông báo lỗi.
+
+5.4.6. App Android nhận Response, lưu username vào SharedPreferences và chuyển sang màn hình chính
+Thao tác: App nhận kết quả trong hàm onResponse.
+Kỹ thuật:
+- Lưu trữ: App sử dụng SharedPreferences (một dạng CSDL mini dạng Key-Value lưu trong bộ nhớ máy) để ghi nhớ: isLoggedIn = true và currentUsername = "admin". Việc này giúp người dùng không phải đăng nhập lại mỗi khi mở app.
+- Chuyển màn hình: Lệnh Intent được thực thi để đóng LoginActivity và khởi chạy MainActivity.
+
+5.4.7. Tại màn hình chính, App tiếp tục gọi getUserInfo để lấy số dư và hiển thị lên UI
+Thao tác: Ngay khi MainActivity (hoặc HomeFragment) vừa hiện lên, nó tự động gọi ApiService.getUserInfo("admin").
+Kỹ thuật:
+- Server nhận lệnh, chạy SQL: SELECT balance FROM users WHERE username = 'admin'.
+- Giả sử kết quả là 50000. Server trả về JSON: {"balance": 50000, ...}.
+- App Android nhận con số 50000, định dạng lại thành chuỗi tiền tệ (ví dụ: 50.000 VNĐ) và gọi lệnh textView.setText() để hiển thị lên màn hình cho người dùng thấy.
+
+5.4.8. Các câu lệnh chính (key commands explanation)
+- app.route('/path', methods=['POST']): Định nghĩa một đường dẫn API. Nếu không có cái này, server sẽ không biết xử lý yêu cầu gửi đến đâu.
+- request.json.get('key'): Lấy giá trị của một trường dữ liệu từ Client gửi lên.
+- db.conn.cursor(): Tạo một con trỏ để thực thi các lệnh SQL.
+- c.execute(sql, params): Thực thi lệnh SQL một cách an toàn (tránh lỗi SQL Injection).
+- jsonify(data): Chuyển đổi từ điển Python (dict) sang chuỗi JSON để gửi về cho App.
+- Retrofit.Builder().baseUrl(...): Thiết lập địa chỉ gốc cho mọi yêu cầu từ App.
+- @Body Map<String, String> body: Khai báo rằng dữ liệu sẽ được gửi trong phần thân của yêu cầu (thường dùng cho POST).
+
+5.5. KIẾN TRÚC RETROFIT TRONG ANDROID
+
+5.5.1. Tại sao lại sử dụng Retrofit mà không phải HttpURLConnection hay Volley?
+- Retrofit là thư viện Type-Safe cho Android. Nó biến API của bạn thành một Interface Java thực thụ.
+- Giảm thiểu mã lặp (Boilerplate code). Bạn không cần viết code mở kết nối, đọc stream, hay parse JSON thủ công.
+- Tích hợp sâu với GSON: Tự động chuyển đổi các kiểu dữ liệu phức tạp. Ví dụ: Call<Map<String, Object>> giúp bạn nhận được một cấu trúc dữ liệu dạng cây (Key-Value) cực kỳ linh hoạt ngay trong Java.
+
+5.5.2. ApiClient.java
+- Sử dụng mẫu thiết kế Singleton (if (retrofit == null)). Điều này đảm bảo trong suốt vòng đời ứng dụng, chỉ có một đối tượng Retrofit duy nhất được khởi tạo, giúp tiết kiệm bộ nhớ và tài nguyên mạng.
+- BASE_URL: Địa chỉ máy chủ. Lưu ý quan trọng: Android không cho phép kết nối http (không bảo mật) mặc định từ phiên bản 9 trở đi. Việc sử dụng Ngrok cấp một URL https giúp giải quyết vấn đề này mà không cần cài đặt chứng chỉ SSL phức tạp cho server địa phương.
+
+5.6. TỰ ĐỘNG HÓA ĐỐI SOÁT THANH TOÁN (MB BANK AUTOMATION)
+
+5.6.1. Tổng quan về Module RPA
+Đây là module mở rộng nhằm giải quyết bài toán nạp tiền tự động 24/7 mà không cần sự can thiệp của con người. Module này sử dụng công nghệ RPA (Robotic Process Automation) để đóng vai trò là một "người dùng ảo" thực hiện các thao tác kiểm tra số dư ngân hàng.
+
+5.6.2. Phân tích Logic điều khiển (file: mbbank.js)
+- Puppeteer Integration: Sử dụng thư viện Puppeteer để khởi tạo trình duyệt ẩn danh, tự động truy cập vào trang Internet Banking của MB Bank.
+- Cơ chế quản lý Session:
+  + loadTempData() và saveTempData(): Lưu trữ và tái sử dụng session (cookies) để giảm tần suất phải đăng nhập lại, giúp hệ thống hoạt động ổn định và tránh bị ngân hàng khóa tài khoản do đăng nhập quá nhiều lần.
+- Hàm lsgd (Lấy lịch sử giao dịch):
+  + Gọi trực tiếp đến API nội bộ của ngân hàng MB với các thông số bảo mật (Authorization, DeviceId, RefNo).
+  + Dữ liệu trả về được lọc theo thời gian (thường là 2-3 ngày gần nhất).
+- Hàm notifyServer (Đồng bộ dữ liệu):
+  + Khi phát hiện một giao dịch mới có nội dung (description) chứa cú pháp Nap_Tien_Smart_Parking_username, script sẽ thực hiện một yêu cầu axios.post gửi số tiền và tên người dùng về API Server (api_server.py) tại endpoint /api/internal/payment_confirmed.
+
+5.6.3. Quy trình nạp tiền tự động 100%
+1. Bước 1: Người dùng thực hiện chuyển khoản qua VietQR từ App Mobile với nội dung đã được định sẵn.
+2. Bước 2: mbbank.js quét lịch sử giao dịch mỗi 5 giây.
+3. Bước 3: Khi thấy tiền đã vào tài khoản, Robot trích xuất số tiền và tên người dùng.
+4. Bước 4: Tín hiệu được gửi về Backend Server. Backend tự động chạy lệnh db.add_balance để cộng tiền vào ví người dùng và gửi thông báo thành công.
+
+5.7. CƠ CHẾ GIẢI MÃ CAPTCHA BẰNG TRÍ TUỆ NHÂN TẠO (AI)
+
+5.7.1. Tại sao cần giải mã CAPTCHA?
+Ngân hàng MB Bank sử dụng mã CAPTCHA hình ảnh để ngăn chặn các cuộc tấn công tự động. Để robot có thể đăng nhập được, hệ thống phải có khả năng "đọc" được các ký tự trong hình ảnh này.
+
+5.7.2. Module nhận diện hình ảnh (file: captcha_solver.py)
+- Công nghệ: Sử dụng mạng nơ-ron nhân tạo CNN (Convolutional Neural Network) với thư viện TensorFlow.
+- Cấu trúc Model AI:
+  + Dữ liệu huấn luyện: Model được huấn luyện trên hàng ngàn mẫu ký tự CAPTCHA thực tế của MB Bank.
+  + File trọng số (mbbank.wgt): Chứa các thông số đã tối ưu của mạng nơ-ron, giúp nhận diện chính xác các ký tự bị biến dạng, nhiễu hoặc có màu sắc khác nhau.
+- Quy trình xử lý:
+  + Tiền xử lý: Hình ảnh CAPTCHA dạng Base64 được chuyển thành mảng Numpy, chuẩn hóa về kích thước và màu sắc để AI dễ nhận diện.
+  + Dự đoán (Prediction): AI phân tích từng vùng của ảnh để dự đoán ký tự. Kết quả cuối cùng là một chuỗi văn bản (string) gồm 6 ký tự.
+  + Phản hồi: Chuỗi ký tự này được trả về cho mbbank.js để điền vào ô "Mã kiểm tra" trên trang đăng nhập.
+
+5.7.3. Ý nghĩa của việc ứng dụng AI
+Việc ứng dụng AI để giải mã CAPTCHA giúp hệ thống hoàn toàn tự động hóa (End-to-End). Đây là một điểm đột phá của dự án, giúp hệ thống không bị gián đoạn bởi các rào cản bảo mật thông thường, đảm bảo tính liên tục và chuyên nghiệp của một ứng dụng bãi xe thông minh hiện đại.

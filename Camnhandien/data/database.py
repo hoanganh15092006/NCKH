@@ -84,6 +84,7 @@ class ParkingDB:
         c.execute("SELECT username, password FROM users")
         self.data["accounts"] = {row['username']: row['password'] for row in c.fetchall()}
         
+        self.data["active_sessions"] = {} # Xóa bộ nhớ đệm cũ
         c.execute("SELECT plate, entry_time, entry_image FROM active_sessions")
         for row in c.fetchall():
             self.data["active_sessions"][row['plate']] = {

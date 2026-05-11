@@ -153,5 +153,27 @@ def get_user_active_sessions():
             
     return jsonify({"sessions": user_sessions})
 
+@app.route('/api/internal/payment_confirmed', methods=['POST'])
+def internal_payment_confirmed():
+    data = request.json
+    amount = data.get('amount', 0)
+    description = data.get('description', "")
+    
+    # Logic phân tích nội dung: Nap_Tien_Smart_Parking_username hoặc NapTienSmartParkingusername
+    # Ví dụ: "NapTienSmartParkinghuy1" hoặc "Nap_Tien_Smart_Parking_admin"
+    import re
+    match = re.search(r"Nap_?Tien_?Smart_?Parking_?([a-zA-Z0-9]+)", description, re.IGNORECASE)
+    
+    if match:
+        target_user = match.group(1)
+        # Cộng tiền
+        new_bal = db.add_balance(target_user, amount)
+        db.add_history_record(target_user, "Nạp Tiền (Auto)", amount, datetime.datetime.now().isoformat(), note=f"Nạp tự động qua Ngân hàng: {description}")
+        return jsonify({"success": True, "message": f"Topped up {amount} for {target_user}"})
+    else:
+        # Nếu không khớp format, có thể log lại để admin kiểm tra thủ công
+        print(f"⚠️ Giao dịch không rõ người hưởng: {amount} - {description}")
+        return jsonify({"success": False, "message": "User not found in description"}), 400
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -63,48 +63,29 @@ public class TopupActivity extends AppCompatActivity {
         });
 
         btnMBBank.setOnClickListener(v -> {
-             String amountStr = etAmount.getText().toString();
-             int amount = amountStr.isEmpty() ? 0 : Integer.parseInt(amountStr);
-             openBankingApp(amount);
+            String amountStr = etAmount.getText().toString();
+            int amount = amountStr.isEmpty() ? 0 : Integer.parseInt(amountStr);
+            openBankingApp(amount);
         });
     }
 
     private void openBankingApp(int amount) {
-        // Định dạng VietQR: https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NUMBER>-<TEMPLATE>.png?amount=<AMOUNT>&addInfo=<DESCRIPTION>&accountName=<NAME>
+        // Định dạng VietQR:
+        // https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NUMBER>-<TEMPLATE>.png?amount=<AMOUNT>&addInfo=<DESCRIPTION>&accountName=<NAME>
         // MB Bank: MB, STK: 0916191655
         String description = "Nap_Tien_Smart_Parking_" + username;
-        String vietQrUrl = "https://img.vietqr.io/image/MB-0916191655-compact2.png?amount=" + amount + "&addInfo=" + description;
+        String vietQrUrl = "https://img.vietqr.io/image/MB-09999999900-compact2.png?amount=" + amount + "&addInfo="
+                + description;
 
-        // Mở trình duyệt để hiển thị mã QR hoặc tự động mở app ngân hàng nếu hỗ trợ scheme
+        // Mở trình duyệt để hiển thị mã QR hoặc tự động mở app ngân hàng nếu hỗ trợ
+        // scheme
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(vietQrUrl));
         startActivity(browserIntent);
 
-        // Giả lập sau khi chuyển hướng, chúng ta gọi API để cộng tiền (trong thực tế sẽ cần hệ thống webhook xác nhận)
-        performApiTopup(amount);
+        Toast.makeText(this, "Hệ thống đang chờ xác nhận tiền về từ ngân hàng. Vui lòng không thực hiện lại giao dịch.", Toast.LENGTH_LONG).show();
     }
 
     private void performApiTopup(int amount) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("username", username);
-        body.put("amount", amount);
-
-        ApiClient.getService().topup(body).enqueue(new Callback<Map<String, Object>>() {
-            @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(TopupActivity.this, "Hệ thống đang chờ xác nhận giao dịch...", Toast.LENGTH_LONG).show();
-                    // Để demo, chúng ta cho thành công luôn sau 2 giây
-                    etAmount.postDelayed(() -> {
-                        Toast.makeText(TopupActivity.this, "Nạp tiền thành công!", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }, 2000);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-                Toast.makeText(TopupActivity.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
-            }
-        });
+        // Hàm này để trống vì tiền sẽ được cộng tự động từ phía Backend qua RPA
     }
 }

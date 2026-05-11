@@ -54,7 +54,7 @@ function solveCaptchaQueued(base64Img) {
 }
 async function solveCaptcha(base64Img) {
   return new Promise((resolve, reject) => {
-    const py = spawn("python", ["captcha_solver.py"]);
+    const py = spawn("py", ["captcha_solver.py"]);
     let result = "";
     let error = "";
 
@@ -92,7 +92,7 @@ async function login(username, password) {
 
     page = await browser.newPage();
     await page.setUserAgent(
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     );
     await page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, "webdriver", { get: () => false });
@@ -111,7 +111,7 @@ async function login(username, password) {
 
     const captchaBase64 = await page.$eval(
       'img[src^="data:image/png;base64,"]',
-      (img) => img.src.replace(/^data:image\/png;base64,/, "")
+      (img) => img.src.replace(/^data:image\/png;base64,/, ""),
     );
     captchaResolved = solveCaptchaQueued(captchaBase64);
 
@@ -119,10 +119,7 @@ async function login(username, password) {
 
     await page.type("#user-id", username);
     await page.type("#new-password", password);
-    await page.type(
-      'input[placeholder="NHẬP MÃ KIỂM TRA"]',
-      captchaSolution
-    );
+    await page.type('input[placeholder="NHẬP MÃ KIỂM TRA"]', captchaSolution);
 
     let result;
     page.on("response", async (response) => {
@@ -162,8 +159,7 @@ async function lsgd(username, password, account_number, retryCount = 0) {
     return null;
   }
 
-  const time =
-    moment.tz("Asia/Ho_Chi_Minh").format("YYYYMMDDHHmmss") + "00";
+  const time = moment.tz("Asia/Ho_Chi_Minh").format("YYYYMMDDHHmmss") + "00";
 
   try {
     const res = await axios.post(
@@ -198,11 +194,13 @@ async function lsgd(username, password, account_number, retryCount = 0) {
             "-01",
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!res.data.result.ok || res.data.result.responseCode !== "00") {
-      console.warn(`⚠️ Session invalid, relogin và retry lần ${retryCount + 1}`);
+      console.warn(
+        `⚠️ Session invalid, relogin và retry lần ${retryCount + 1}`,
+      );
       const newSession = await safeLogin(username, password);
       if (!newSession) return null;
       return await lsgd(username, password, account_number, retryCount + 1);
@@ -232,7 +230,7 @@ async function notifyServer(amount, description) {
   try {
     await axios.post("http://127.0.0.1:5000/api/internal/payment_confirmed", {
       amount: amount,
-      description: description
+      description: description,
     });
     console.log(`📡 Đã báo về Server: ${amount} - ${description}`);
   } catch (err) {
@@ -250,7 +248,11 @@ function printNewTransactions(accountNumber, transactions, history) {
     const amountVal = Number(tx.creditAmount);
 
     if (amountVal > 0 && !history.some((h) => h.id === txId)) {
-      history.push({ id: txId, content: txContent, amount: amountVal.toLocaleString() });
+      history.push({
+        id: txId,
+        content: txContent,
+        amount: amountVal.toLocaleString(),
+      });
       hasNew = true;
 
       // Gửi thông báo cho API Server
@@ -274,7 +276,9 @@ function printNewTransactions(accountNumber, transactions, history) {
       const outCol = (amountOut || "").padEnd(15, " ");
       const contentCol = txContent;
 
-      console.log(`${idCol} | ${dateCol} | ${inCol} | ${outCol} | ${contentCol}`);
+      console.log(
+        `${idCol} | ${dateCol} | ${inCol} | ${outCol} | ${contentCol}`,
+      );
     }
   });
 
@@ -290,7 +294,7 @@ async function checkTransactions(username, password, accountNumber) {
     const hasNew = printNewTransactions(
       accountNumber,
       data.transactionHistoryList,
-      history
+      history,
     );
     if (!hasNew) console.log("⏳ Không có giao dịch mới.");
   } else {
@@ -301,7 +305,7 @@ async function checkTransactions(username, password, accountNumber) {
 // ================== Run ==================
 (async () => {
   const username = ""; // tài khoản đăng nhập
-  const password = "";  // mật khẩu đăng nhập
+  const password = ""; // mật khẩu đăng nhập
   const accountNumber = ""; // số tài khoản
 
   console.log("🚀 Bắt đầu theo dõi giao dịch...");

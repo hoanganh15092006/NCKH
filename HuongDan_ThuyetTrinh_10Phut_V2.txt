@@ -1,0 +1,71 @@
+================================================================================
+KỊCH BẢN THUYẾT TRÌNH BẢO VỆ NCKH (PHIÊN BẢN NÂNG CẤP - STORYTELLING)
+Dự án: HỆ THỐNG QUẢN LÝ BÃI ĐỖ XE THÔNG MINH - SMART PARKING
+Thời lượng dự kiến: 10 - 12 phút
+================================================================================
+
+MỤC TIÊU PHIÊN BẢN NÀY: 
+- Thay vì chỉ liệt kê tính năng, bản này áp dụng kỹ thuật Kể chuyện (Storytelling) để dẫn dắt Hội đồng.
+- Nhấn mạnh sâu hơn vào "Nỗi đau" (Pain points) của thực tế và "Sự thông minh" (Smart) của hệ thống.
+- Sử dụng các từ ngữ mang tính kỹ thuật cao nhưng được giải thích dễ hiểu, thể hiện sự làm chủ công nghệ.
+
+--------------------------------------------------------------------------------
+PHẦN KỊCH BẢN CHI TIẾT
+--------------------------------------------------------------------------------
+
+[Slide 1: Tiêu đề & Lời chào - Tạo ấn tượng đầu tiên] (0.5 phút)
+"Kính thưa quý thầy cô trong Hội đồng Giám khảo, cùng toàn thể các bạn sinh viên.
+Mỗi ngày, chúng ta đều tiêu tốn một quỹ thời gian vô hình nhưng không hề nhỏ: đó là thời gian chờ đợi tại các bãi gửi xe. Hôm nay, em đứng ở đây để trình bày một giải pháp biến sự chờ đợi đó bằng 'Không'. 
+Em là [Tên của bạn]. Xin trân trọng giới thiệu đến Hội đồng đề tài: 'Xây dựng Hệ thống Quản lý Bãi đỗ xe Thông minh - Smart Parking, tích hợp nhận diện hình ảnh và thanh toán tự động hoàn toàn'."
+
+[Slide 2: Đặt vấn đề - Nhấn mạnh vào "Nỗi đau"] (1.5 phút)
+"Hãy cùng nhìn vào thực trạng hiện nay (chỉ tay về phía slide). Các bãi xe truyền thống đang vận hành bằng vé giấy hoặc thẻ từ. Phương pháp này có 3 điểm yếu chí mạng:
+Thứ nhất, ùn tắc: Việc dừng xe, chờ lấy vé, hay đếm tiền lẻ trả lại làm giảm lưu lượng xe qua cổng đi rất nhiều.
+Thứ hai, rủi ro quản lý: Thẻ từ có thể bị đánh tráo, vé giấy có thể bị làm giả hoặc rách nát.
+Thứ ba, chi phí vận hành: Đòi hỏi luôn phải có nhân sự trực tại chốt 24/7.
+Với tư cách là những sinh viên công nghệ, em nhận thấy quy trình này đang lãng phí quá nhiều nguồn lực xã hội. Chúng ta cần một hệ thống có khả năng tự động hóa 100% quy trình này."
+
+[Slide 3: Giải pháp đột phá của Smart Parking] (1 phút)
+"Và đó là lý do Smart Parking ra đời. triết lý cốt lõi của hệ thống gói gọn trong 3 chữ KHÔNG:
+1. KHÔNG dừng đỗ lâu: Hệ thống nhận diện biển số tự động ngay khi xe tiến vào.
+2. KHÔNG chạm: Barie mở tự động, người dùng không cần hạ kính xe hay nhận thẻ.
+3. KHÔNG tiền mặt: Tích hợp ví điện tử và thanh toán tự động.
+Hệ thống này sẽ biến biển số xe của bạn thành chính tấm vé và chiếc điện thoại thông minh thành một chiếc ví gửi xe chuyên dụng."
+
+[Slide 4: Kiến trúc hệ thống - Làm chủ công nghệ] (2 phút)
+"Để hiện thực hóa 3 chữ 'Không' đó, em đã thiết kế một kiến trúc phân tán (Distributed Architecture) gồm 3 thành phần liên kết chặt chẽ với nhau:
+Đầu tiên là 'Đôi mắt' - Cụm Local Camera tại bãi xe. Nó sử dụng AI để bóc tách và nhận diện các ký tự trên biển số trong thời gian thực.
+Thứ hai là 'Bộ não' - Backend Server. Em phát triển server này bằng ngôn ngữ Python với framework Flask, quản trị cơ sở dữ liệu MySQL. Nó đóng vai trò cung cấp các RESTful API làm cầu nối giao tiếp, xử lý logic kiểm tra số dư và ra lệnh điều khiển Barie vật lý.
+Cuối cùng là 'Điểm chạm người dùng' - Ứng dụng Android. Được viết bằng Java thuần, ứng dụng sử dụng kiến trúc Retrofit để kết nối mượt mà với Server, giúp người dùng quản lý xe và nạp tiền chỉ bằng vài thao tác vuốt chạm."
+
+[Slide 5: Luồng vận hành thực tế & Quét QR dự phòng] (1 phút)
+"Vậy hệ thống hoạt động như thế nào? 
+Rất đơn giản. Khi xe vừa tiến đến cổng, Camera đọc biển số và gửi request lên Server. Server truy vấn trong mili-giây: 'Xe này của ai? Tài khoản còn tiền không?'. Nếu hợp lệ, một lệnh 'Mở cổng' được nạp vào Database và Barie sẽ tự động nhấc lên. Trải nghiệm xuyên suốt chưa tới 3 giây.
+Tuy nhiên, với tư duy của một kỹ sư, em lường trước trường hợp biển số bị bùn đất che khuất hoặc trời mưa quá to khiến AI nhận diện sai. Do đó, em trang bị thêm tính năng 'Mở cổng bằng mã QR' trên App Mobile. Lệnh mở cổng này sẽ giao tiếp trực tiếp với Server để điều khiển phần cứng từ xa, đảm bảo hệ thống không bao giờ bị tê liệt."
+
+[Slide 6: Công nghệ Thanh toán Tự động - ĐIỂM SÁNG TẠO NHẤT] (2.5 phút)
+"Kính thưa Hội đồng, phần lõi công nghệ mà em tự hào nhất trong dự án này không nằm ở bãi xe, mà nằm ở hệ thống thanh toán. 
+Hiện nay, làm sao để sinh viên hoặc các bãi xe nhỏ tích hợp thanh toán ngân hàng tự động mà không mất phí duy trì cổng thanh toán (như VNPay, MoMo)?
+Để giải bài toán này, em đã xây dựng một Module RPA (Robotic Process Automation - Tự động hóa quy trình bằng Robot). 
+- Khi người dùng nạp tiền, App tạo ra mã VietQR. Tiền sẽ được chuyển thẳng vào tài khoản MB Bank của chủ bãi xe.
+- Ngay lúc đó, một Robot ẩn (viết bằng NodeJS và Puppeteer) sẽ liên tục kiểm tra tài khoản MB Bank này. 
+- Nhưng ngân hàng có cơ chế chống Robot bằng mã CAPTCHA hình ảnh. Để xuyên thủng hàng rào này, em đã tự tay huấn luyện một mô hình Mạng Nơ-ron Tích chập (CNN - Convolutional Neural Network) sử dụng thư viện TensorFlow. Mô hình AI này có khả năng bóc tách, khử nhiễu và đọc chính xác chữ số trên CAPTCHA của MB Bank.
+Nhờ có 'Robot giải mã AI' này, hệ thống tự động phát hiện tiền vào và cộng số dư cho người dùng trong vòng vài giây, hoạt động hoàn toàn ngầm và miễn phí 100%. Đây là sự kết hợp giữa Web Scraping và Computer Vision (Thị giác máy tính) để tạo ra một luồng Fintech thu nhỏ."
+
+[Slide 7 & 8: Giao diện và Video Demo] (1 phút)
+"Mời quý vị xem qua giao diện ứng dụng và video hoạt động thực tế.
+(Bật video)
+Như trên màn hình, giao diện được thiết kế hiện đại. Khi em thực hiện thao tác quét QR (hoặc xe chạy qua Camera), quý vị có thể thấy Barie lập tức phản hồi. Lịch sử giao dịch và thời gian xe vào/ra được đồng bộ theo thời gian thực (real-time) xuống điện thoại bằng kiến trúc mạng tối ưu, không có hiện tượng giật lag."
+
+[Slide 9: Tổng kết kết quả] (0.5 phút)
+"Nhìn lại chặng đường nghiên cứu, dự án đã đạt được những kết quả đáng khích lệ:
+1. Xây dựng thành công hệ sinh thái khép kín: Hardware (Camera) - Backend (Python) - Client (Android).
+2. Tích hợp thành công mô hình AI (CNN) để giải quyết bài toán nút thắt về đối soát ngân hàng tự động.
+3. Rút ngắn thời gian qua trạm xuống còn dưới 3 giây/xe."
+
+[Slide 10: Hướng phát triển & Lời kết] (0.5 phút)
+"Dù vậy, hệ thống vẫn còn dư địa để nâng cấp. Bước tiếp theo, em dự định áp dụng thuật toán tối ưu hóa chỗ trống, chỉ đường cho xe vào đúng vị trí trống trong bãi bằng bản đồ 2D trên App.
+Hành trình hoàn thành đề tài này là một trải nghiệm vô giá giúp em chuyển hóa kiến thức lý thuyết thành một sản phẩm thực tế. Em xin gửi lời cảm ơn sâu sắc đến Thầy/Cô hướng dẫn đã định hướng cho em.
+Bài thuyết trình của em đến đây là kết thúc. Rất mong nhận được sự góp ý và những câu hỏi phản biện từ Hội đồng để đề tài được hoàn thiện hơn.
+Em xin trân trọng cảm ơn!"
+================================================================================
